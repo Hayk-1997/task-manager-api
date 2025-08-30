@@ -2,7 +2,7 @@
 
 ## Setting up the Project
 
-1. Copy the `.env.example` file and rename it to `.env`:
+1. Inside in Laradock folder` copy the `.env.example` file and rename it to `.env`:
    ```bash
    cp .env.example .env
    ```
