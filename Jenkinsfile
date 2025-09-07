@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        LARADOCK_PATH = "${WORKSPACE}/Laradock"   // path to Laradock folder
+        LARADOCK_PATH = "${WORKSPACE}/laradock"   // path to Laradock folder
         WORKSPACE_CONTAINER = "workspace" // workspace container name
     }
 
