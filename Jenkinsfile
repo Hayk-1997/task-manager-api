@@ -3,13 +3,14 @@ pipeline {
 
     environment {
         LARADOCK_PATH = "${WORKSPACE}/laradock"   // path to Laradock folder
-        WORKSPACE_CONTAINER = "workspace" // workspace container name
+        WORKSPACE_CONTAINER = "manager-workspace-1" // workspace container name
     }
 
     stages {
         stage('Prepare Env') {
             steps {
-                echo 'Preparing environment file...'
+                echo "Preparing environment file..."
+                echo "LARADOCK_PATH: ${LARADOCK_PATH}"
                 dir("${LARADOCK_PATH}") {
                     sh '''
                         if [ ! -f .env ]; then
@@ -27,7 +28,7 @@ pipeline {
             steps {
                 echo 'Starting Laradock containers...'
                 dir("${LARADOCK_PATH}") {
-                    sh 'docker-compose up -d nginx mysql php-fpm workspace'
+                    sh 'docker exec manager-workspace-1 bash -c "php -v && composer --version"'
                 }
             }
         }
@@ -36,6 +37,7 @@ pipeline {
             steps {
                 echo 'Running migrations & seeds...'
                 dir("${LARADOCK_PATH}") {
+                    sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan migrate:rollback"
                     sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan migrate --force"
                     sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan db:seed --force"
                 }
@@ -54,10 +56,7 @@ pipeline {
 
     post {
         always {
-            echo 'Stopping containers...'
-            dir("${LARADOCK_PATH}") {
-                sh 'docker-compose down'
-            }
+            echo 'Finish process...'
         }
     }
 }
