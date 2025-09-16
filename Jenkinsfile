@@ -32,14 +32,20 @@ pipeline {
                 }
             }
         }
+        
+        stage('Prepare Test DB') {
+            steps {
+               sh 'docker exec -i manager-mysql-1 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS db_test;"'
+            }
+        }
 
         stage('Migrate & Seed DB') {
             steps {
                 echo 'Running migrations & seeds...'
                 dir("${LARADOCK_PATH}") {
-                    sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan migrate:rollback"
-                    sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan migrate --force"
-                    sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan db:seed --force"
+                    sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan migrate:fresh --seed --env=testing"
+                    // sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan migrate --force --env=testing"
+                    // sh "docker exec -i ${WORKSPACE_CONTAINER} php artisan db:seed --force --env=testing"
                 }
             }
         }
